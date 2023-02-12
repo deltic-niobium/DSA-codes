@@ -1,0 +1,81 @@
+#include <stdio.h>
+#include <string.h>
+char stack[15];
+char infix[50];
+char prefix[50];
+int top = -1, top_prefix = -1;
+
+int order(char element)
+{
+	if(element == '^')
+		return 5;
+	else if(element == '/' || element == '*')
+		return 4;
+	else if(element == '+' || element == '-')
+		return 3;
+	else
+		return 0;
+}
+
+void push_to_stack(char element)
+{
+	stack[++top] = element;
+}
+
+void pop_to_prefix()
+{
+	prefix[++top_prefix] = stack[top--]; 
+}
+
+void push_to_prefix(char element)
+{
+	prefix[++top_prefix] = element;
+}
+
+
+void scanning()
+{
+	int i = 0;
+	for(i = 0; i < strlen(infix); i++)
+	{
+		if(infix[i] == '^' || infix[i] == '/' || infix[i] == '*' || infix[i] == '-' || infix[i] == '+')
+		{
+			if(order(infix[i]) >= order(stack[top]))
+				push_to_stack(infix[i]);
+			else
+			{
+				while(order(infix[i]) < order(stack[top]))
+					pop_to_prefix();
+				push_to_stack(infix[i]);
+			}
+		}
+		else if(infix[i] == '(' || infix[i] == ')')
+		{
+			if(infix[i] == ')')
+				push_to_stack(infix[i]);
+			else
+			{
+				while(stack[top] != ')')
+					pop_to_prefix();
+				top--;
+			}
+		}
+		else
+		{
+			push_to_prefix(infix[i]);
+		}
+	}
+	while(top > -1)
+		pop_to_prefix();	
+}
+
+int main()
+{
+	printf("Enter infix expression\n");
+	gets(infix);
+	strrev(infix);
+	scanning();
+	printf("prefix expression\n");
+	puts(strrev(prefix));
+	return 0;
+}
